@@ -18,6 +18,13 @@ class IngredientController extends AbstractController
         $this->productService = $productService;
     }
 
+    #[Route('/ingredients', name: 'ingredient_list')]
+    public function listAll(): Response
+    {
+        return $this->render('ingrediant/index.html.twig');
+    }
+
+
     #[Route('/ingredient/new', name: 'ingredient_new')]
     public function new(Request $request): Response
     {

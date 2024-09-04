@@ -7,7 +7,7 @@ class StorePanelService
 
     public function getPanels()
     {
-        $dumiesPanel = [
+        return  [
             '0' => [
                 'name' => 'Factures',
                 'img' => 'facture.png',
@@ -21,17 +21,17 @@ class StorePanelService
             '3' => [
                 'name' => 'Recette',
                 'img' => 'barbecue.png',
-                'url' => 'categories'
+                'url' => 'recipes'
             ],
             '4' => [
                 'name' => 'Ingredients',
                 'img' => 'food.png',
-                'url' => 'foods'
+                'url' => 'ingredients'
             ],
             '5' => [
                 'name' => 'Produit',
                 'img' => 'plat.png',
-                'url' => 'plats'
+                'url' => 'products'
             ],
             '6' => [
                 'name' => 'Gestion de Stock',
@@ -48,9 +48,6 @@ class StorePanelService
                 'img' => 'settings.png',
                 'url' => 'settings'
             ],
-
-
         ];
-        return $dumiesPanel;
     }
 }
