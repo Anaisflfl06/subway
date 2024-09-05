@@ -52,3 +52,5 @@
 /.web-server-pid
 # Ignore env
 .env
+
+node_modules/
