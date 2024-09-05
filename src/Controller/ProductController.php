@@ -15,15 +15,24 @@ class ProductController extends AbstractController
 {
     private $productService;
 
-    #[Route('/products', name: 'payment_list')]
-    public function listAll(): Response
-    {
-        return $this->render('product/index.html.twig');
-    }
-
     public function __construct(ProductService $productService)
     {
         $this->productService = $productService;
+    }
+
+    #[Route('/products', name: 'payment_list')]
+    public function listAll(): Response
+    {
+        $products = [
+            ['name' => 'Sugar', 'price' => 100],
+            ['name' => 'Sugar', 'price' => 100],
+            ['name' => 'Sugar', 'price' => 100],
+            ['name' => 'Sugar', 'price' => 100],
+        ];
+
+        return $this->render('product/index.html.twig', [
+            'products' => $products
+        ]);
     }
 
     // Les méthodes existantes restent inchangées

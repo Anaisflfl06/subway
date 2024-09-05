@@ -1,8 +1,41 @@
 {# templates/panel/index.html.twig #} {% extends 'base.html.twig' %} {% block body %}
-<div class="flex items-center bg-indigo-100 w-screen min-h-screen" style="font-family: 'Muli', sans-serif">
   <div class="container">
-    <h1>Produit</h1>
-    <a href="/">Retour</a>
+    <div class="container-page">
+      <h1>Produits</h1>
+      <button class="button-common button-green">Ajouter</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="fl-table">
+      <thead>
+        <tr>
+          <th>
+            Nom
+          </th>
+          <th>
+          Prix
+          </th>
+          <th>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for product in products %}
+        <tr>
+            <td>
+              {{product.name}}
+            </td>
+            <td>
+            {{product.price}}
+            </td>
+            <td style="text-align:right">
+              <button class="button-common button-blue">Modifier</button>
+              <button class="button-common button-danger">Supprimer</button>
+            </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <a href="/" class="button-common button-primary">Retour</a>
   </div>
-</div>
 {% endblock %}
