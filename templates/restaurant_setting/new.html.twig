@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Restaurant Setting{% endblock %}
+
+{% block body %}
+    <h1>New Restaurant Setting</h1>
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button>{{ button_label|default('Save') }}</button>
+    {{ form_end(form) }}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Restaurant Settings{% endblock %}
+
+{% block body %}
+    <h1>Restaurant Settings</h1>
+    <a href="{{ path('restaurant_setting_new') }}">Add New Setting</a>
+    <ul>
+        {% for setting in settings %}
+            <li>
+                <a href="{{ path('restaurant_setting_show', {id: setting.id}) }}">
+                    {{ setting.name }}
+                </a>
+                <a href="{{ path('restaurant_setting_edit', {id: setting.id}) }}">Edit</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

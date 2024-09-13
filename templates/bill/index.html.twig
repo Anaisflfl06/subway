@@ -1,8 +1,40 @@
-{# templates/panel/index.html.twig #} {% extends 'base.html.twig' %} {% block body %}
-<div class="flex items-center bg-indigo-100 w-screen min-h-screen" style="font-family: 'Muli', sans-serif">
-  <div class="container">
-    <h1>Paiement</h1>
-    <a href="/">Retour</a>
-  </div>
-</div>
+{% extends 'base.html.twig' %}
+
+{% block title %}Bills{% endblock %}
+
+{% block body %}
+<h1>Bills</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Supplier</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bill in bills %}
+        <tr>
+            <td>{{ bill.id }}</td>
+            <td>{{ bill.supplier.name }}</td>
+            <td>{{ bill.amount }}</td>
+            <td>{{ bill.status }}</td>
+            <td>
+                <a href="{{ path('bill_show', {'id': bill.id}) }}" class="btn btn-info">View</a>
+                <a href="{{ path('bill_edit', {'id': bill.id}) }}" class="btn btn-warning">Edit</a>
+                <a href="{{ path('bill_delete', {'id': bill.id}) }}" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No bills found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ path('bill_new') }}" class="btn btn-success">Create New Bill</a>
 {% endblock %}

@@ -1,8 +1,36 @@
-{# templates/panel/index.html.twig #} {% extends 'base.html.twig' %} {% block body %}
-<div class="flex items-center bg-indigo-100 w-screen min-h-screen" style="font-family: 'Muli', sans-serif">
-  <div class="container">
-    <h1>Produit</h1>
-    <a href="/">Retour</a>
-  </div>
-</div>
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des produits{% endblock %}
+
+{% block body %}
+    <h1>Liste des produits</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>
+                    <a href="{{ path('product_show', {id: product.id}) }}">Voir</a>
+                    <a href="{{ path('product_edit', {id: product.id}) }}">Modifier</a>
+                    <form action="{{ path('product_delete', {id: product.id}) }}" method="post" style="display:inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                        <button type="submit">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('product_new_from_ingredient') }}">Créer un produit depuis des ingrédients</a><br>
+    <a href="{{ path('product_new_from_recipe') }}">Créer un produit depuis une recette</a>
 {% endblock %}

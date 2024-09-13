@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Bill Details</h1>
+    <p>Customer: {{ bill.customerName }}</p>
+    <p>Total Amount: {{ bill.totalAmount }}$</p>
+    <p>Created At: {{ bill.createdAt|date('Y-m-d H:i') }}</p>
+{% endblock %}

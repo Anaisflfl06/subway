@@ -1,6 +1,4 @@
 <?php
-// src/Form/RecipeType.php
-// src/Form/RecipeType.php
 
 namespace App\Form;
 
@@ -19,7 +17,7 @@ class RecipeType extends AbstractType
             ->add('name')
             ->add('duration')
             ->add('ingredients', CollectionType::class, [
-                'entry_type' => IngredientQuantityType::class,
+                'entry_type' => RecipeIngrediantType::class,
                 'entry_options' => ['label' => false],
                 'allow_add' => true,
                 'allow_delete' => true,
@@ -29,9 +27,6 @@ class RecipeType extends AbstractType
                 'attr' => ['class' => 'ingredient-collection'],
                 'prototype' => true,
                 'prototype_name' => '__name__',
-                'entry_options' => [
-                    'validation_groups' => false, // Disable validation for each entry
-                ],
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Save Recipe',
@@ -43,7 +38,7 @@ class RecipeType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Recipe::class,
-            'validation_groups' => ['Default'], // Overall validation groups
+            'validation_groups' => ['Default'],
         ]);
     }
 }

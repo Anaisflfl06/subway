@@ -1,19 +1,17 @@
-{# templates/product/show.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block body %}
-	<h1>{{ product.name }}</h1>
-	<p>Price:
-		{{ product.price }}</p>
-	<p>Image:
-		<img src="{{ asset(product.image) }}" alt="{{ product.name }}"></p>
+{% block title %}Détails du produit{{ product.name }}{% endblock %}
 
-	<h2>Associations</h2>
-	<ul>
-	    // La section "Associations" affiche toutes les entités associées au produit.
-		{% for association in product.associations %} 
-			<li>{{ association.associatedType }}:
-				{{ association.associatedId }}</li>
-		{% endfor %}
-	</ul>
+{% block body %}
+    <h1>Détails du produit</h1>
+
+    <ul>
+        <li>ID : {{ product.id }}</li>
+        <li>Nom : {{ product.name }}</li>
+        <li>Description : {{ product.description }}</li>
+        <!-- Ajouter d'autres champs selon les propriétés de votre entité Product -->
+    </ul>
+
+    <a href="{{ path('product_edit', {id: product.id}) }}">Modifier</a>
+    <a href="{{ path('product_index') }}">Retour à la liste des produits</a>
 {% endblock %}

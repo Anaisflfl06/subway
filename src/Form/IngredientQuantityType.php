@@ -1,12 +1,14 @@
 <?php
+// src/Form/IngredientQuantityType.php
+
 namespace App\Form;
 
-use App\Entity\Ingrediant;
+use App\Entity\Ingrediant; // Assuming your entity is called Ingrediant
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class IngredientQuantityType extends AbstractType
 {
@@ -14,21 +16,20 @@ class IngredientQuantityType extends AbstractType
     {
         $builder
             ->add('ingredient', EntityType::class, [
-                'class' => Ingrediant::class,
-                'choice_label' => 'name',
-                'placeholder' => 'Select an ingredient',
-                'label' => 'Ingredient'
+                'class' => Ingrediant::class, // Entity class for ingredients
+                'choice_label' => 'name', // Property to display in the dropdown
+                'label' => 'Ingredient',
             ])
-            ->add('quantity', NumberType::class, [
-                'label' => 'Quantity'
+            ->add('quantity', IntegerType::class, [
+                'label' => 'Quantity',
+                'required' => true, // Set this to true if you want this field to be required
             ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        // No data class here as this is a collection of embedded forms
         $resolver->setDefaults([
-            'validation_groups' => false, // Disable validation groups
+            'validation_groups' => null, // Use default validation groups if needed
         ]);
     }
 }

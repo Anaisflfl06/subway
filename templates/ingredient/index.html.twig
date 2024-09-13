@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Ingrédients{% endblock %}
+
+{% block body %}
+    <h1>Liste des Ingrédients</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Quantité</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ingredient in ingredients %}
+                <tr>
+                    <td>{{ ingredient.name }}</td>
+                    <td>{{ ingredient.quantity }}</td>
+                    <td>
+                        <a href="{{ path('ingredient_edit', { id: ingredient.id }) }}" class="btn btn-primary">Modifier</a>
+                        <a href="{{ path('ingredient_delete', { id: ingredient.id }) }}" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet ingrédient ?');">
+                            Supprimer
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3">Aucun ingrédient trouvé</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('ingredient_new') }}" class="btn btn-success">Ajouter un nouvel ingrédient</a>
+{% endblock %}

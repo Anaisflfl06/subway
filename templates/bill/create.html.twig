@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Create Bill</h1>
+    <form method="post" action="{{ path('bill_create') }}">
+        <div>
+            <label for="customer_name">Customer Name:</label>
+            <input type="text" id="customer_name" name="customer_name">
+        </div>
+        <div>
+            <label for="total_amount">Total Amount:</label>
+            <input type="number" id="total_amount" name="total_amount" step="0.01">
+        </div>
+        <button type="submit">Create Bill</button>
+    </form>
+{% endblock %}

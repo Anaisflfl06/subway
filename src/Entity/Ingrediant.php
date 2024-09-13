@@ -8,13 +8,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: IngrediantRepository::class)]
-/**
- * @ORM\Entity()
- * @ORM\Table(name="ingrediant")
- */
+#[ORM\Table(name: "ingrediant")]
 class Ingrediant
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -35,23 +31,17 @@ class Ingrediant
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
-
     /**
      * @var Collection<int, RecipeIngrediant>
      */
-    #[ORM\OneToMany(targetEntity: RecipeIngrediant::class, mappedBy: 'ingredient')]
-    private Collection $RecipeIngrediants;
-
-    /**
-     * @var Collection<int, RecipeIngrediant>
-     */
-    #[ORM\OneToMany(targetEntity: RecipeIngrediant::class, mappedBy: 'ingrediant', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'ingredient', targetEntity: RecipeIngrediant::class, orphanRemoval: true)]
     private Collection $recipeIngrediants;
 
     public function __construct()
     {
-        $this->RecipeIngrediants = new ArrayCollection();
         $this->recipeIngrediants = new ArrayCollection();
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -88,14 +78,14 @@ class Ingrediant
         return $this->picture;
     }
 
-    public function setPicture(string $picture): static
+    public function setPicture(?string $picture): static
     {
         $this->picture = $picture;
 
         return $this;
     }
 
-    public function getcreated_at(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->created_at;
     }
@@ -107,12 +97,12 @@ class Ingrediant
         return $this;
     }
 
-    public function getupdated_at(): ?\DateTimeImmutable
+    public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updated_at;
     }
 
-    public function setupdatedAt(\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
 
@@ -124,28 +114,29 @@ class Ingrediant
      */
     public function getRecipeIngrediants(): Collection
     {
-        return $this->RecipeIngrediants;
+        return $this->recipeIngrediants;
     }
 
-    public function addRecipeIngrediant(RecipeIngrediant $RecipeIngrediant): static
+    public function addRecipeIngrediant(RecipeIngrediant $recipeIngrediant): static
     {
-        if (!$this->RecipeIngrediants->contains($RecipeIngrediant)) {
-            $this->RecipeIngrediants->add($RecipeIngrediant);
-            $RecipeIngrediant->setIngredient($this);
+        if (!$this->recipeIngrediants->contains($recipeIngrediant)) {
+            $this->recipeIngrediants->add($recipeIngrediant);
+            $recipeIngrediant->setIngredient($this);
         }
 
         return $this;
     }
 
-    public function removeRecipeIngrediant(RecipeIngrediant $RecipeIngrediant): static
+    public function removeRecipeIngrediant(RecipeIngrediant $recipeIngrediant): static
     {
-        if ($this->RecipeIngrediants->removeElement($RecipeIngrediant)) {
-            // set the owning side to null (unless already changed)
-            if ($RecipeIngrediant->getIngredient() === $this) {
-                $RecipeIngrediant->setIngredient(null);
+        if ($this->recipeIngrediants->removeElement($recipeIngrediant)) {
+            // Set the owning side to null (unless already changed)
+            if ($recipeIngrediant->getIngredient() === $this) {
+                $recipeIngrediant->setIngredient(null);
             }
         }
 
         return $this;
     }
 }
+

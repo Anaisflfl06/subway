@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Recipe;
 use App\Entity\RecipeIngrediant;
-use App\Entity\Ingrediant;
 use App\Form\RecipeType;
 use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,54 +27,34 @@ class RecipeController extends AbstractController
     {
         $recipe = new Recipe();
         $form = $this->createForm(RecipeType::class, $recipe);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            // Extract POST data
-            $data = $request->request->all();
-            $data = $data['recipe'];
-
-            // Validate the received data (basic checks)
-            if (!isset($data['name']) || !isset($data['duration']) || !isset($data['ingredients'])) {
-                return new JsonResponse(['error' => 'Invalid input'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $recipe = new Recipe();
-            $recipe->setName($data['name']);
-            $recipe->setDuration($data['duration']);
-
-            // Persist the Recipe entity first
+        if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->persist($recipe);
-            $this->entityManager->flush(); // Ensure Recipe ID is generated
+            
+            // Ajouter les ingrédients à la recette
+            $ingredientsData = $form->get('ingredients')->getData();
 
-            // Process ingredients data
-            $ingredientsData = $data['ingredients'];
-            if (json_last_error() === JSON_ERROR_NONE) {
-                foreach ($ingredientsData as $ingredientData) {
-                    $ingredient = $this->entityManager->getRepository(Ingrediant::class)->find($ingredientData['ingredient']);
+            foreach ($ingredientsData as $ingredientData) {
+                $ingredient = $ingredientData->getIngredient(); // Récupère l'ingrédient associé
 
-                    if ($ingredient) {
-                        $recipeIngredient = new RecipeIngrediant();
-                        $recipeIngredient->setRecipe($recipe);
-                        $recipeIngredient->setIngredient($ingredient);
-                        $recipeIngredient->setQuantity($ingredientData['quantity']);
+                if ($ingredient) {
+                    $recipeIngredient = new RecipeIngrediant();
+                    $recipeIngredient->setRecipe($recipe);
+                    $recipeIngredient->setIngredient($ingredient);
+                    $recipeIngredient->setQuantity($ingredientData->getQuantity());
 
-                        // Persist each RecipeIngrediant entity
-                        $this->entityManager->persist($recipeIngredient);
-                    } else {
-                        return new JsonResponse(['error' => 'Ingredient not found'], Response::HTTP_BAD_REQUEST);
-                    }
+                    $this->entityManager->persist($recipeIngredient);
+                } else {
+                    return new JsonResponse(['error' => 'Ingredient not found'], Response::HTTP_BAD_REQUEST);
                 }
-            } else {
-                return new JsonResponse(['error' => 'Invalid ingredients format'], Response::HTTP_BAD_REQUEST);
             }
 
-            // Flush all changes to persist RecipeIngrediant entities
             $this->entityManager->flush();
 
             return $this->redirectToRoute('recipes_list');
         }
 
-        // Render the form view for creating a new recipe
         return $this->render('recipe/create.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -84,7 +63,6 @@ class RecipeController extends AbstractController
     #[Route('/recipes', name: 'recipes_list')]
     public function list(RecipeRepository $recipeRepository): Response
     {
-        // Fetch all recipes with their associated ingredients
         $recipes = $recipeRepository->findAll();
 
         return $this->render('recipe/index.html.twig', [
@@ -95,7 +73,6 @@ class RecipeController extends AbstractController
     #[Route('/recipe/{id}', name: 'recipe_show', methods: ['GET'])]
     public function show(Recipe $recipe): Response
     {
-        // Ensure Recipe exists
         if (!$recipe) {
             throw $this->createNotFoundException('Recipe not found');
         }
@@ -108,58 +85,40 @@ class RecipeController extends AbstractController
     #[Route('/recipe/{id}/edit', name: 'recipe_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Recipe $recipe): Response
     {
-        // Ensure Recipe exists
-        if (!$recipe) {
-            throw $this->createNotFoundException('Recipe not found');
-        }
+        $form = $this->createForm(RecipeType::class, $recipe);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            // Extract POST data
-            $data = $request->request->all();
-            $data = $data['recipe'];
-
-            // Validate the received data (basic checks)
-            if (!isset($data['name']) || !isset($data['duration']) || !isset($data['ingredients'])) {
-                return new JsonResponse(['error' => 'Invalid input'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $recipe->setName($data['name']);
-            $recipe->setDuration($data['duration']);
-
-            // Remove existing RecipeIngrediant entities
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Supprimer les anciens ingrédients liés à la recette
             foreach ($recipe->getIngredients() as $existingRecipeIngredient) {
                 $this->entityManager->remove($existingRecipeIngredient);
             }
 
-            // Process ingredients data
-            $ingredientsData = json_decode($data['ingredients'], true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                foreach ($ingredientsData as $ingredientData) {
-                    $ingredient = $this->entityManager->getRepository(Ingrediant::class)->find($ingredientData['ingredient']);
+            // Ajouter les nouveaux ingrédients
+            $ingredientsData = $form->get('ingredients')->getData();
 
-                    if ($ingredient) {
-                        $recipeIngredient = new RecipeIngrediant();
-                        $recipeIngredient->setRecipe($recipe);
-                        $recipeIngredient->setIngredient($ingredient);
-                        $recipeIngredient->setQuantity($ingredientData['quantity']);
+            foreach ($ingredientsData as $ingredientData) {
+                $ingredient = $ingredientData->getIngredient();
 
-                        // Persist each RecipeIngrediant entity
-                        $this->entityManager->persist($recipeIngredient);
-                    } else {
-                        return new JsonResponse(['error' => 'Ingredient not found'], Response::HTTP_BAD_REQUEST);
-                    }
+                if ($ingredient) {
+                    $recipeIngredient = new RecipeIngrediant();
+                    $recipeIngredient->setRecipe($recipe);
+                    $recipeIngredient->setIngredient($ingredient);
+                    $recipeIngredient->setQuantity($ingredientData->getQuantity());
+
+                    $this->entityManager->persist($recipeIngredient);
+                } else {
+                    return new JsonResponse(['error' => 'Ingredient not found'], Response::HTTP_BAD_REQUEST);
                 }
-            } else {
-                return new JsonResponse(['error' => 'Invalid ingredients format'], Response::HTTP_BAD_REQUEST);
             }
 
-            // Flush all changes to update RecipeIngrediant entities
             $this->entityManager->flush();
 
             return $this->redirectToRoute('recipes_list');
         }
 
         return $this->render('recipe/edit.html.twig', [
+            'form' => $form->createView(),
             'recipe' => $recipe,
         ]);
     }
@@ -167,13 +126,8 @@ class RecipeController extends AbstractController
     #[Route('/recipe/{id}/delete', name: 'recipe_delete', methods: ['POST'])]
     public function delete(Request $request, Recipe $recipe): Response
     {
-        // Ensure Recipe exists
-        if (!$recipe) {
-            throw $this->createNotFoundException('Recipe not found');
-        }
-
         if ($this->isCsrfTokenValid('delete' . $recipe->getId(), $request->request->get('_token'))) {
-            // Remove the Recipe and associated RecipeIngrediant entities
+            // Supprimer la recette et ses ingrédients associés
             foreach ($recipe->getIngredients() as $recipeIngredient) {
                 $this->entityManager->remove($recipeIngredient);
             }

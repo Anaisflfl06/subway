@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RecipeRepository::class)]
+#[ORM\HasLifecycleCallbacks] // Indique que cette entité a des événements de cycle de vie
+
 class Recipe
 {
     #[ORM\Id]
@@ -27,17 +29,26 @@ class Recipe
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updated_at = new \DateTimeImmutable(); // Met à jour la date de mise à jour avant chaque update
+    }
+
     /**
      * @var Collection<int, RecipeIngrediant>
      */
     #[ORM\OneToMany(targetEntity: RecipeIngrediant::class, mappedBy: 'recipe', orphanRemoval: true)]
     private $ingredients;
 
+    #[ORM\PrePersist]
     public function __construct()
-    {
-        $this->ingredients = new ArrayCollection();
-        
-    }
+{
+    $this->ingredients = new ArrayCollection();
+    $this->created_at = new \DateTimeImmutable(); // Initialise la date de création avec l'heure actuelle
+    $this->updated_at = new \DateTimeImmutable(); // Initialise aussi la date de mise à jour
+}
+
 
     public function getId(): ?int
     {

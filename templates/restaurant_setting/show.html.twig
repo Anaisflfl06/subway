@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Restaurant Setting{% endblock %}
+
+{% block body %}
+    <h1>{{ restaurant_setting.name }}</h1>
+    <p>Address: {{ restaurant_setting.address }}</p>
+    <p>Phone: {{ restaurant_setting.phoneNumber }}</p>
+    <!-- Add more fields as needed -->
+    <a href="{{ path('restaurant_setting_edit', {id: restaurant_setting.id}) }}">Edit</a>
+{% endblock %}

@@ -23,7 +23,7 @@ doctrine:
                 prefix: 'App\Entity'
                 alias: App
         controller_resolver:
-            auto_mapping: false
+            auto_mapping: false                
 
 when@test:
     doctrine:
@@ -50,3 +50,5 @@ when@prod:
                     adapter: cache.app
                 doctrine.system_cache_pool:
                     adapter: cache.system
+
+

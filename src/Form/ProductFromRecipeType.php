@@ -37,7 +37,7 @@ class ProductFromRecipeType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => null,  // If this form is not tied to an entity
+            'data_class' => null,
         ]);
     }
 }

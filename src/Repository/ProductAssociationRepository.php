@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Repository;
 
 use App\Entity\ProductAssociation;
@@ -16,28 +15,17 @@ class ProductAssociationRepository extends ServiceEntityRepository
         parent::__construct($registry, ProductAssociation::class);
     }
 
-//    /**
-//     * @return ProductAssociation[] Returns an array of ProductAssociation objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('p.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * @return ProductAssociation[] Returns an array of ProductAssociation objects
+     */
+    public function findAssociationsByProduct(int $productId): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.product = :productId')
+            ->setParameter('productId', $productId)
+            ->getQuery()
+            ->getResult();
+    }
 
-//    public function findOneBySomeField($value): ?ProductAssociation
-//    {
-//        return $this->createQueryBuilder('p')
-//            ->andWhere('p.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    // Add other custom queries as needed
 }

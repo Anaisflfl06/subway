@@ -1,64 +1,27 @@
 <?php
 namespace App\Service;
 
-use App\Entity\Ingrediant;
 use App\Entity\Product;
 use App\Entity\ProductAssociation;
+use App\Entity\Ingrediant;
 use App\Entity\Recipe;
-use App\Entity\RecipeIngrediant;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ProductService
 {
     private $entityManager;
+    private $ingredientService;
+    private $recipeService;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, IngredientService $ingredientService, RecipeService $recipeService)
     {
         $this->entityManager = $entityManager;
+        $this->ingredientService = $ingredientService;
+        $this->recipeService = $recipeService;
     }
 
-    public function createIngredient(string $name, string $quantity): Ingrediant
-    {
-        $ingredient = new Ingrediant();
-        $ingredient->setName($name);
-        $ingredient->setQuantity($quantity);
-        $ingredient->setCreatedAt(new \DateTimeImmutable());
-        $ingredient->setUpdatedAt(new \DateTimeImmutable());
-
-        $this->entityManager->persist($ingredient);
-        $this->entityManager->flush();
-
-        return $ingredient;
-    }
-
-    public function createRecipe(string $name, $duration, array $ingredients): Recipe
-    {
-        $recipe = new Recipe();
-        $recipe->setName($name);
-        $recipe->setDuration($duration);
-        $recipe->setCreatedAt(new \DateTimeImmutable());
-        $recipe->setUpdatedAt(new \DateTimeImmutable());
-
-        foreach ($ingredients as $ingredientData) {
-            $ingredient = $this->createIngredient($ingredientData['name'], $ingredientData['quantity']);
-
-            $recipeIngredient = new RecipeIngrediant();
-            $recipeIngredient->setRecipe($recipe);
-            $recipeIngredient->setIngredient($ingredient);
-            $recipeIngredient->setQuantity($ingredientData['quantity']);
-            $recipeIngredient->setCreatedAt(new \DateTimeImmutable());
-            $recipeIngredient->setUpdatedAt(new \DateTimeImmutable());
-
-            $this->entityManager->persist($recipeIngredient);
-        }
-
-        $this->entityManager->persist($recipe);
-        $this->entityManager->flush();
-
-        return $recipe;
-    }
-
-    public function createProduct(string $name, float $price, string $image, string $type, int $associatedId): Product
+    // Créer un produit générique
+    public function createProduct(string $name, float $price, string $image): Product
     {
         $product = new Product();
         $product->setName($name);
@@ -70,73 +33,32 @@ class ProductService
         $this->entityManager->persist($product);
         $this->entityManager->flush();
 
+        return $product;
+    }
+
+    // Récupérer tous les produits
+    public function getAllProducts(): array
+    {
+        return $this->entityManager->getRepository(Product::class)->findAll();
+    }
+
+    // Associer un produit avec un ingrédient
+    public function associateProductWithIngredient(Product $product, Ingrediant $ingrediant): void
+    {
         $productAssociation = new ProductAssociation();
         $productAssociation->setProduct($product);
-        $productAssociation->setAssociatedId($associatedId);
-        $productAssociation->setAssociatedType($type);
+        $productAssociation->setAssociatedId($ingrediant->getId());
+        $productAssociation->setAssociatedType('ingredient');
         $productAssociation->setCreatedAt(new \DateTimeImmutable());
         $productAssociation->setUpdatedAt(new \DateTimeImmutable());
 
         $this->entityManager->persist($productAssociation);
         $this->entityManager->flush();
-
-        return $product;
     }
 
-    // Méthode pour créer un produit à partir d'une liste d'ingrédients
-    public function createProductFromIngredients(string $name, float $price, string $image, array $ingredients): Product
+    // Associer un produit avec une recette
+    public function associateProductWithRecipe(Product $product, Recipe $recipe): void
     {
-        // Création du produit sans association
-        $product = new Product();
-        $product->setName($name);
-        $product->setPrice($price);
-        $product->setImage($image);
-        $product->setCreatedAt(new \DateTimeImmutable());
-        $product->setUpdatedAt(new \DateTimeImmutable());
-
-        $this->entityManager->persist($product);
-        $this->entityManager->flush();
-
-        // Association de chaque ingrédient avec le produit
-        foreach ($ingredients as $ingredientData) {
-            $ingredient = $this->createIngredient($ingredientData['name'], $ingredientData['quantity']);
-
-            $productAssociation = new ProductAssociation();
-            $productAssociation->setProduct($product);
-            $productAssociation->setAssociatedId($ingredient->getId());
-            $productAssociation->setAssociatedType('ingredient');
-            $productAssociation->setCreatedAt(new \DateTimeImmutable());
-            $productAssociation->setUpdatedAt(new \DateTimeImmutable());
-
-            $this->entityManager->persist($productAssociation);
-        }
-
-        $this->entityManager->flush();
-
-        return $product;
-    }
-
-    // Méthode pour créer un produit à partir d'une recette existante
-    public function createProductFromRecipe(string $name, float $price, string $image, int $recipeId): Product
-    {
-        $recipe = $this->entityManager->getRepository(Recipe::class)->find($recipeId);
-
-        if (!$recipe) {
-            throw new \InvalidArgumentException('Recipe not found');
-        }
-
-        // Création du produit associé à la recette
-        $product = new Product();
-        $product->setName($name);
-        $product->setPrice($price);
-        $product->setImage($image);
-        $product->setCreatedAt(new \DateTimeImmutable());
-        $product->setUpdatedAt(new \DateTimeImmutable());
-
-        $this->entityManager->persist($product);
-        $this->entityManager->flush();
-
-        // Association de la recette avec le produit
         $productAssociation = new ProductAssociation();
         $productAssociation->setProduct($product);
         $productAssociation->setAssociatedId($recipe->getId());
@@ -146,44 +68,30 @@ class ProductService
 
         $this->entityManager->persist($productAssociation);
         $this->entityManager->flush();
-
-        return $product;
     }
 
-    public function getProductAssociations(Product $product): array
-    {
-        $repository = $this->entityManager->getRepository(ProductAssociation::class);
-        return $repository->findBy(['product' => $product]);
-    }
-
+    // Acheter un produit (soit ingrédient, soit recette)
     public function buyProduct(Product $product): string
     {
-        // Fetch the associated entities based on type
-        $associations = $this->getProductAssociations($product);
+        $associations = $this->entityManager->getRepository(ProductAssociation::class)->findBy(['product' => $product]);
 
         foreach ($associations as $association) {
             if ($association->getAssociatedType() === 'ingredient') {
-                $ingredient = $this->entityManager->getRepository(Ingrediant::class)->find($association->getAssociatedId());
-                $currentQuantity = $ingredient->getQuantity();
-
-                if ($currentQuantity > 0) {
-                    $ingredient->setQuantity($currentQuantity - 1);
-                    $this->entityManager->flush();
-                    return 'Ingredient bought successfully! New quantity: ' . ($currentQuantity - 1);
+                $ingredient = $this->ingredientService->getIngredientById($association->getAssociatedId());
+                if ($ingredient->getQuantity() > 0) {
+                    $this->ingredientService->updateIngredientQuantity($ingredient, $ingredient->getQuantity() - 1);
+                    return 'Ingredient bought successfully!';
                 } else {
-                    return 'Ingredient is out of stock.';
+                    return 'Ingredient out of stock!';
                 }
             } elseif ($association->getAssociatedType() === 'recipe') {
-                $recipe = $this->entityManager->getRepository(Recipe::class)->find($association->getAssociatedId());
-                $ingredients = $this->entityManager->getRepository(RecipeIngrediant::class)->findBy(['Recipe' => $recipe]);
+                $recipe = $this->recipeService->getRecipeById($association->getAssociatedId());
+                $ingredients = $this->recipeService->getIngredientsForRecipe($recipe);
 
                 $enoughStock = true;
                 foreach ($ingredients as $recipeIngredient) {
                     $ingredient = $recipeIngredient->getIngredient();
-                    $quantityNeeded = $recipeIngredient->getQuantity();
-                    $ingredientQuantity = $ingredient->getQuantity();
-
-                    if ($ingredientQuantity < $quantityNeeded) {
+                    if ($ingredient->getQuantity() < $recipeIngredient->getQuantity()) {
                         $enoughStock = false;
                         break;
                     }
@@ -192,23 +100,48 @@ class ProductService
                 if ($enoughStock) {
                     foreach ($ingredients as $recipeIngredient) {
                         $ingredient = $recipeIngredient->getIngredient();
-                        $quantityNeeded = $recipeIngredient->getQuantity();
-                        $ingredient->setQuantity($ingredient->getQuantity() - $quantityNeeded);
+                        $ingredient->setQuantity($ingredient->getQuantity() - $recipeIngredient->getQuantity());
                     }
 
                     $this->entityManager->flush();
                     return 'Recipe bought successfully!';
                 } else {
-                    return 'Not enough stock for all ingredients of this recipe.';
+                    return 'Not enough stock for the recipe ingredients.';
                 }
             }
         }
 
-        return 'This product type is not supported for buying.';
+        return 'Unsupported product type for purchase.';
     }
 
-    public function getProductById(int $id): ?Product
+    // Créer un produit à partir d'un ingrédient
+    public function createProductFromIngredient(Product $product, Ingrediant $ingredient): Product
     {
-        return $this->entityManager->getRepository(Product::class)->find($id);
+        $this->createProduct($product->getName(), $product->getPrice(), $product->getImage());
+        $this->associateProductWithIngredient($product, $ingredient);
+        return $product;
+    }
+
+    // Créer un produit à partir d'une recette
+    public function createProductFromRecipe(Product $product, Recipe $recipe): Product
+    {
+        $this->createProduct($product->getName(), $product->getPrice(), $product->getImage());
+        $this->associateProductWithRecipe($product, $recipe);
+        return $product;
+    }
+
+    // Mettre à jour un produit
+    public function updateProduct(Product $product): Product
+    {
+        $product->setUpdatedAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+        return $product;
+    }
+
+    // Supprimer un produit
+    public function deleteProduct(Product $product): void
+    {
+        $this->entityManager->remove($product);
+        $this->entityManager->flush();
     }
 }

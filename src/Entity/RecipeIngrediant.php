@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\RecipeIngredientRepository;
+use App\Repository\RecipeIngrediantRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RecipeIngredientRepository::class)]
+#[ORM\Entity(repositoryClass: RecipeIngrediantRepository::class)]
 class RecipeIngrediant
 {
     #[ORM\Id]

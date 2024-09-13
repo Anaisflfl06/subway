@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Ingrediant>
+ *
+ * @method Ingrediant|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Ingrediant|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Ingrediant[]    findAll()
+ * @method Ingrediant[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class IngrediantRepository extends ServiceEntityRepository
 {
@@ -16,28 +21,24 @@ class IngrediantRepository extends ServiceEntityRepository
         parent::__construct($registry, Ingrediant::class);
     }
 
-    //    /**
-    //     * @return Ingrediant[] Returns an array of Ingrediant objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('i.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    // Exemple d'une méthode personnalisée pour trouver les ingrédients dont la quantité est inférieure à un certain seuil
+    public function findByLowQuantity(float $threshold): array
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.quantity < :threshold')
+            ->setParameter('threshold', $threshold)
+            ->orderBy('i.quantity', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Ingrediant
-    //    {
-    //        return $this->createQueryBuilder('i')
-    //            ->andWhere('i.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    // Exemple d'une méthode pour trouver tous les ingrédients triés par nom
+    public function findAllSortedByName(): array
+    {
+        return $this->createQueryBuilder('i')
+            ->orderBy('i.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
+

@@ -3,3 +3,15 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+bill_index:
+    path: /bill
+    controller: App\Controller\BillController::index
+
+bill_create:
+    path: /bill/create
+    controller: App\Controller\BillController::create
+
+bill_show:
+    path: /bill/{id}
+    controller: App\Controller\BillController::show
