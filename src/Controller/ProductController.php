@@ -19,13 +19,19 @@ class ProductController extends AbstractController
         $this->productService = $productService;
     }
 
-    #[Route('/products', name: 'payment_list')]
+    #[Route('/products', name: 'product_list')]
     public function listAll(): Response
     {
         $products = $this->productService->getAllProducts();
         return $this->render('product/index.html.twig', [
             'products' => $products
         ]);
+    }
+
+    #[Route('/products/create', name: 'product_create')]
+    public function createProduct(): Response
+    {
+        return $this->render('product/create.html.twig');
     }
 
     // Les méthodes existantes restent inchangées
