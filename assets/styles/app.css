@@ -511,3 +511,21 @@ body {
     padding: 0.5rem;
   }
 }
+
+form label,
+form input {
+  display: block;
+  margin-bottom: 5px;
+}
+
+form input {
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid gray;
+}
+
+button[type="submit"] {
+  display: block;
+  margin: 10px 0 20px 0;
+}

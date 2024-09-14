@@ -32,7 +32,7 @@
             </td>
             <td style="text-align:right">
               <button class="button-common button-blue">Modifier</button>
-              <button class="button-common button-danger">Supprimer</button>
+              <button onclick="onDelete({{product.id}})" class="button-common button-danger">Supprimer</button>
             </td>
         </tr>
       {% endfor %}
@@ -41,4 +41,11 @@
     </div>
     <a href="/" class="button-common button-primary">Retour</a>
   </div>
+  <script>
+  function onDelete(id){
+    fetch(`/products/${id}/delete`, options={ method: "POST" })
+    .then(res => window.location.reload())
+    .catch(e => console.log(e))
+  }
+  </script>
 {% endblock %}

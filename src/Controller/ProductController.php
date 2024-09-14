@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductFromIngredientType;
 use App\Form\ProductFromRecipeType;
+use App\Form\ProductType;
 use App\Service\ProductService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,28 +30,61 @@ class ProductController extends AbstractController
     }
 
     #[Route('/products/create', name: 'product_create')]
-    public function createProduct(): Response
+    public function createProduct(Request $request): Response
     {
-        return $this->render('product/create.html.twig');
+        $product = new Product();
+        $form = $this->createForm(ProductType::class, $product);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->productService->createProduct(
+                $product->getName(),
+                $product->getPrice(),
+                $product->getImage()
+            );
+
+            $this->addFlash('success', 'Produit ajouté avec succès.');
+            return $this->redirectToRoute('product_list');
+        }
+
+        return $this->render('product/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
-    // Les méthodes existantes restent inchangées
-    #[Route('/product/test', name: 'product_test')]
-    public function test(): Response
+    #[Route('/products/{id}', name: 'product_show', methods: ['GET'])]
+    public function showDetail(Product $product): Response
     {
-        // Create ingredients and recipe
-        $ingredients = [
-            ['name' => 'Sugar', 'quantity' => 100],
-            ['name' => 'Flour', 'quantity' => 200],
-        ];
-
-        $recipe = $this->productService->createRecipe('Cake', 100, $ingredients);
-
-        // Create a product for the recipe
-        $product = $this->productService->createProduct('Cake Product', 9.99, 'cake.jpg', 'recipe', $recipe->getId());
-
-        return new Response('Test entities created successfully!');
+        return $this->render('product/show.html.twig', [
+            'product' => $product,
+        ]);
     }
+
+    
+    #[Route('/products/{id}/edit', name: 'product_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Product $product, ProductService $productService): Response
+    {
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $productService->updateProduct($product);
+            return $this->redirectToRoute('product_index');
+        }
+
+        return $this->render('product/edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/products/{id}/delete', name: 'product_delete', methods: ['POST'])]
+    public function delete(Request $request, Product $product, ProductService $productService): Response
+    {
+        $productService->deleteProduct($product);
+        return new Response();
+    }
+
 
     #[Route('/product/show/{id}', name: 'product_show')]
     public function show(int $id): Response
@@ -99,39 +133,7 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/product/{id}', name: 'product_show', methods: ['GET'])]
-    public function showDetail(Product $product): Response
-    {
-        return $this->render('product/show.html.twig', [
-            'product' => $product,
-        ]);
-    }
+   
 
-    #[Route('/product/{id}/edit', name: 'product_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Product $product, ProductService $productService): Response
-    {
-        $form = $this->createForm(ProductType::class, $product);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $productService->updateProduct($product);
-            return $this->redirectToRoute('product_index');
-        }
-
-        return $this->render('product/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[Route('/product/{id}/delete', name: 'product_delete', methods: ['POST'])]
-    public function delete(Request $request, Product $product, ProductService $productService): Response
-    {
-        // Vérifie la validité du token CSRF pour la suppression
-        if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->request->get('_token'))) {
-            $productService->deleteProduct($product);
-        }
-
-        // Redirige vers la liste des produits après la suppression
-        return $this->redirectToRoute('product_index');
-    }
+   
 }
