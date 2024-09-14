@@ -12,8 +12,48 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
 {
-    #[Route('/products', name: 'product_index', methods: ['GET'])]
-    public function index(ProductService $productService): Response
+    private $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        $this->productService = $productService;
+    }
+
+    #[Route('/products', name: 'payment_list')]
+    public function listAll(): Response
+    {
+        $products = [
+            ['name' => 'Sugar', 'price' => 100],
+            ['name' => 'Sugar', 'price' => 100],
+            ['name' => 'Sugar', 'price' => 100],
+            ['name' => 'Sugar', 'price' => 100],
+        ];
+
+        return $this->render('product/index.html.twig', [
+            'products' => $products
+        ]);
+    }
+
+    // Les méthodes existantes restent inchangées
+    #[Route('/product/test', name: 'product_test')]
+    public function test(): Response
+    {
+        // Create ingredients and recipe
+        $ingredients = [
+            ['name' => 'Sugar', 'quantity' => 100],
+            ['name' => 'Flour', 'quantity' => 200],
+        ];
+
+        $recipe = $this->productService->createRecipe('Cake', 100, $ingredients);
+
+        // Create a product for the recipe
+        $product = $this->productService->createProduct('Cake Product', 9.99, 'cake.jpg', 'recipe', $recipe->getId());
+
+        return new Response('Test entities created successfully!');
+    }
+
+    #[Route('/product/show/{id}', name: 'product_show')]
+    public function show(int $id): Response
     {
         $products = $productService->getAllProducts();
 

@@ -1,36 +1,41 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Liste des produits{% endblock %}
-
-{% block body %}
-    <h1>Liste des produits</h1>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for product in products %}
-            <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>
-                    <a href="{{ path('product_show', {id: product.id}) }}">Voir</a>
-                    <a href="{{ path('product_edit', {id: product.id}) }}">Modifier</a>
-                    <form action="{{ path('product_delete', {id: product.id}) }}" method="post" style="display:inline;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
-                        <button type="submit">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
+{# templates/panel/index.html.twig #} {% extends 'base.html.twig' %} {% block body %}
+  <div class="container">
+    <div class="container-page">
+      <h1>Produits</h1>
+      <button class="button-common button-green">Ajouter</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="fl-table">
+      <thead>
+        <tr>
+          <th>
+            Nom
+          </th>
+          <th>
+          Prix
+          </th>
+          <th>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for product in products %}
+        <tr>
+            <td>
+              {{product.name}}
+            </td>
+            <td>
+            {{product.price}}
+            </td>
+            <td style="text-align:right">
+              <button class="button-common button-blue">Modifier</button>
+              <button class="button-common button-danger">Supprimer</button>
+            </td>
+        </tr>
+      {% endfor %}
+      </tbody>
     </table>
-
-    <a href="{{ path('product_new_from_ingredient') }}">Créer un produit depuis des ingrédients</a><br>
-    <a href="{{ path('product_new_from_recipe') }}">Créer un produit depuis une recette</a>
+    </div>
+    <a href="/" class="button-common button-primary">Retour</a>
+  </div>
 {% endblock %}
