@@ -22,13 +22,7 @@ class ProductController extends AbstractController
     #[Route('/products', name: 'payment_list')]
     public function listAll(): Response
     {
-        $products = [
-            ['name' => 'Sugar', 'price' => 100],
-            ['name' => 'Sugar', 'price' => 100],
-            ['name' => 'Sugar', 'price' => 100],
-            ['name' => 'Sugar', 'price' => 100],
-        ];
-
+        $products = $this->productService->getAllProducts();
         return $this->render('product/index.html.twig', [
             'products' => $products
         ]);
@@ -55,8 +49,10 @@ class ProductController extends AbstractController
     #[Route('/product/show/{id}', name: 'product_show')]
     public function show(int $id): Response
     {
-        $products = $productService->getAllProducts();
-
+        $products = $this->productService->getAllProducts();
+        // $products = [
+        //     ['name' => 'sugar', 'price' => 100]
+        // ];
         return $this->render('product/index.html.twig', [
             'products' => $products,
         ]);
@@ -98,7 +94,7 @@ class ProductController extends AbstractController
     }
 
     #[Route('/product/{id}', name: 'product_show', methods: ['GET'])]
-    public function show(Product $product): Response
+    public function showDetail(Product $product): Response
     {
         return $this->render('product/show.html.twig', [
             'product' => $product,
